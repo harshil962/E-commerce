@@ -1,0 +1,116 @@
+{% extends "index.html" %}
+{% load static %}
+{% block content %}
+
+<div class="form-box">
+
+    <h2>Register</h2>
+
+    <form method="POST">
+
+        {% csrf_token %}
+
+        <input 
+            type="text" 
+            name="username" 
+            placeholder="Enter Username"
+            value="{{ username }}"
+            autofocus
+            required
+        >
+
+        <input 
+            type="email" 
+            name="email" 
+            placeholder="Enter Email"
+            value="{{ email }}"
+            required
+        >
+
+        <div style="position: relative;">
+
+            <input
+                type="password"
+                name="password"
+                id="password"
+                placeholder="Enter Password"
+                required
+            >
+
+            <span
+                onclick="togglePassword('password', this)"
+                style="
+                    position:absolute;
+                    right:15px;
+                    top:14px;
+                    cursor:pointer;
+                    user-select:none;
+                "
+            >
+                👁
+            </span>
+
+        </div>
+
+        <div style="position: relative;">
+
+            <input
+                type="password"
+                name="confirm_password"
+                id="confirm_password"
+                placeholder="Confirm Password"
+                required
+            >
+
+            <span
+                onclick="togglePassword('confirm_password', this)"
+                style="
+                    position:absolute;
+                    right:15px;
+                    top:14px;
+                    cursor:pointer;
+                    user-select:none;
+                "
+            >
+                👁
+            </span>
+
+        </div>
+
+        {% for message in messages %}
+            <p style="color:red; text-align:center; margin-top:10px;">
+                {{ message }}
+            </p>
+        {% endfor %}
+
+        <button type="submit">Register</button>
+
+    </form>
+
+    <p>
+        Already have an account?
+        <a href="{% url 'login' %}">Login</a>
+    </p>
+
+</div>
+
+<script>
+
+function togglePassword(id, element){
+
+    let input = document.getElementById(id);
+
+    if(input.type === "password"){
+        input.type = "text";
+        element.innerHTML = "🙈";
+    }
+
+    else{
+        input.type = "password";
+        element.innerHTML = "👁";
+    }
+}
+
+</script>
+
+{% endblock %}

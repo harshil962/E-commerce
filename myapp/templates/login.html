@@ -1,0 +1,86 @@
+{% extends "index.html" %}
+{% load static %}
+{% block content %}
+
+<div class="form-box">
+
+    <h2>Login</h2>
+
+    <form method="POST">
+
+        {% csrf_token %}
+
+        <input
+            type="text"
+            name="username"
+            placeholder="Enter Username"
+            required
+        >
+
+  <div style="position: relative;">
+
+    <input
+        type="password"
+        name="password"
+        id="password"
+        placeholder="Enter Password"
+        required
+    >
+
+    <span
+        onclick="togglePassword('password', this)"
+        style="
+            position:absolute;
+            right:15px;
+            top:14px;
+            cursor:pointer;
+            user-select:none;
+        "
+    >
+        👁
+    </span>
+
+</div>
+
+        {% for message in messages %}
+            <p style="
+                color:red;
+                text-align:center;
+                margin-top:10px;
+                font-size:14px;
+            ">
+                {{ message }}
+            </p>
+        {% endfor %}
+
+        <button type="submit">Login</button>
+
+    </form>
+
+    <p>
+        Don't have an account?
+        <a href="{% url 'register' %}">Register</a>
+    </p>
+
+</div>
+
+<script>
+
+function togglePassword(id, element){
+
+    let input = document.getElementById(id);
+
+    if(input.type === "password"){
+        input.type = "text";
+        element.innerHTML = "🙈";
+    }
+
+    else{
+        input.type = "password";
+        element.innerHTML = "👁";
+    }
+}
+
+</script>
+
+{% endblock %}
