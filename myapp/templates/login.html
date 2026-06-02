@@ -1,4 +1,6 @@
 {% extends "index.html" %}
+{% load socialaccount %}
+
 {% load static %}
 {% block content %}
 
@@ -44,7 +46,7 @@
 
         {% for message in messages %}
             <p style="
-                color:red;
+                color:{% if message.tags == 'success' %}green{% else %}red{% endif %};
                 text-align:center;
                 margin-top:10px;
                 font-size:14px;
@@ -57,13 +59,43 @@
 
     </form>
 
+    <div style="text-align:center; margin-top:20px;">
+        <a href="{% provider_login_url 'google' %}"
+           style="
+                display:inline-flex;
+                align-items:center;
+                justify-content:center;
+                gap:10px;
+                width:100%;
+                max-width:300px;
+                padding:12px;
+                border:1px solid #ddd;
+                border-radius:5px;
+                background:#fff;
+                color:#444;
+                text-decoration:none;
+                font-weight:600;
+                box-shadow:0 2px 5px rgba(0,0,0,0.1);
+                transition:0.3s;
+           "
+           onmouseover="this.style.background='#f5f5f5'"
+           onmouseout="this.style.background='#fff'"
+        >
+            <img
+                src="https://developers.google.com/identity/images/g-logo.png"
+                alt="Google"
+                width="20"
+                height="20"
+            >
+            Sign in with Google
+        </a>
+    </div>
     <p>
         Don't have an account?
         <a href="{% url 'register' %}">Register</a>
     </p>
 
 </div>
-
 <script>
 
 function togglePassword(id, element){

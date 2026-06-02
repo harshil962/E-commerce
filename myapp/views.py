@@ -1,125 +1,99 @@
+from django.contrib.auth import logout
 import re
 from django.shortcuts import render, redirect
-from django.contrib.auth.models import User
-from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import *
+from functools import wraps
 # Create your views here.
+from django.core.paginator import Paginator
 
+
+
+def login_required_custom(view_func):
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+
+        # Google login / Django auth
+        if request.user.is_authenticated:
+            return view_func(request, *args, **kwargs)
+
+        # Your old session login
+        if request.session.get("user_id"):
+            return view_func(request, *args, **kwargs)
+
+        messages.error(request, "Please login first")
+        return redirect("login")
+
+    return wrapper
 
 def register_page(request):
-
     if request.method == "POST":
-
-        username = request.POST['username']
-        email = request.session['email'] = request.POST['email']
-        password = request.POST['password']
-        confirm_password = request.POST['confirm_password']
-
-        context = {
-            "username": username,
-            "email": email,
-        }
+        username = request.POST.get("username")
+        email = request.POST.get("email")
+        password = request.POST.get("password")
+        confirm_password = request.POST.get("confirm_password")
 
         if password != confirm_password:
             messages.error(request, "Passwords do not match")
-            return render(request, 'register.html', context)
+            return redirect("register")
 
-        elif User.objects.filter(username=username).exists():
+        if Human.objects.filter(username=username).exists():
             messages.error(request, "Username already exists")
-            return render(request, 'register.html', context)
+            return redirect("register")
 
-        elif User.objects.filter(email=email).exists():
+        if Human.objects.filter(email=email).exists():
             messages.error(request, "Email already exists")
-            return render(request, 'register.html', context)
+            return redirect("register")
 
-        elif len(password) < 8:
-            messages.error(request, "Password must be at least 8 characters")
-            return render(request, 'register.html', context)
-
-        elif not re.search(r"[A-Z]", password):
-            messages.error(request, "Password must contain one uppercase letter")
-            return render(request, 'register.html', context)
-
-        elif not re.search(r"[a-z]", password):
-            messages.error(request, "Password must contain one lowercase letter")
-            return render(request, 'register.html', context)
-
-        elif not re.search(r"[0-9]", password):
-            messages.error(request, "Password must contain one number")
-            return render(request, 'register.html', context)
-
-        elif not re.search(r"[!@#$%^&*()_+=]", password):
-            messages.error(request, "Password must contain one special character")
-            return render(request, 'register.html', context)
-
-        User.objects.create_user(
+        Human.objects.create(
             username=username,
             email=email,
             password=password
         )
 
-        messages.success(request, "Account created successfully")
-        return redirect('login')
+        messages.success(request, "Registration successful")
+        return redirect("login")
 
-    return render(request, 'register.html')
+    return render(request, "register.html")
 
-# LOGIN
 def login_page(request):
 
+    if request.user.is_authenticated or request.session.get("user_id"):
+        return redirect("index")
+
     if request.method == "POST":
+        username = request.POST.get("username")
+        password = request.POST.get("password")
 
-        username = request.POST['username']
-        password = request.POST['password']
-
-        context = {
-            "username": username
-        }
-
-        # CHECK EMPTY
-
-        if username == "" or password == "":
-            messages.error(request, "All fields are required")
-            return render(request, 'login.html', context)
-
-        # AUTHENTICATE USER
-
-        user = authenticate(
-            request,
+        user = Human.objects.filter(
             username=username,
             password=password
-        )
+        ).first()
 
-        # LOGIN SUCCESS
+        if user:
+            request.session["user_id"] = user.id
+            request.session["username"] = user.username
 
-        if user is not None:
+            messages.success(request, "Login successful")
+            return redirect("index")
 
-            login(request, user)
+        messages.error(request, "Invalid username or password")
+        return redirect("login")
 
-            messages.success(request, "Login Successful")
+    return render(request, "login.html")
 
-            return redirect('index')
 
-        # INVALID LOGIN
-
-        else:
-
-            messages.error(request, "Invalid Username or Password")
-
-            return render(request, 'login.html', context)
-
-    return render(request, 'login.html')
-
-# LOGOUT
 def logout_page(request):
-
     logout(request)
-    return redirect('login')
+    request.session.flush()
 
+    messages.success(request, "Logged out successfully")
+    return redirect("login")
+     
+     
+@login_required_custom
 def index(request):
-    if 'email' in request.session:
-        uid=register_page.objects.get(email=request.session['email'])  
         data = Departments.objects.all()
         
         departments = data
@@ -136,12 +110,9 @@ def index(request):
             "latest_products": latest_products,
             "top_rated_products": top_rated_products,
             "review_products": review_products,
-            "uid":uid
         }
 
         return render(request, "index.html", context)
-    else:
-        return render(request, "login.html")
     
 
 def blog(request):
@@ -156,7 +127,7 @@ def checkout(request):
     return render(request, 'checkout.html')
 
 
-def contact(request,id):
+def contact(request):
     
     return render(request, 'contact.html')
 
@@ -168,18 +139,21 @@ def main(request):
 def shop_details(request):
     return render(request, 'shop-details.html')
 
+@login_required_custom
 def detail(request,id):
+    data = Departments.objects.all()
     pid = Product.objects.get(id=id)
     products = Product.objects.all()
     context = {
         "products" :products,
-        "pid" :pid
+        "pid" :pid,
+        "data": data,
     }
     return render(request, 'shop-details.html',context)
 
+
+@login_required_custom
 def shop_grid(request):
-    if 'email' in request.session:
-        uid=register_page.objects.get(email=request.session['email'])        
         data = Departments.objects.all()
         products = Product.objects.all()
         cf = Color_filter.objects.all()
@@ -205,6 +179,15 @@ def shop_grid(request):
                 price__lte=int(max_price[1:])
             )
             
+        paginator = Paginator(products,6)
+        page_number = request.GET.get("page",1)
+        try:
+            page_number = int(page_number)
+        except ValueError:
+            page_number = 1 
+        products = paginator.get_page(page_number)
+        show_page=paginator.get_elided_page_range(page_number,on_each_side=1,on_ends=1)
+           
         context = {
             "data": data,
             "products": products,
@@ -213,13 +196,13 @@ def shop_grid(request):
             "category_id": category_id,
             "min_price": min_price,
             "max_price": max_price,
-            "uid":uid
+            "show_page":show_page
+
         }
 
         return render(request, "shop-grid.html", context)
-    return render(request, "login.html")
 
-
+@login_required_custom
 def color_filter_view(request):
     data = Departments.objects.all()
     products = Product.objects.all()
@@ -247,6 +230,9 @@ def color_filter_view(request):
     }
 
     return render(request, "shop-grid.html", context)
+
+
+@login_required_custom
 
 def size_filter_view(request):
     data = Departments.objects.all()
@@ -276,6 +262,7 @@ def size_filter_view(request):
 
     return render(request, "shop-grid.html", context)
 
+@login_required_custom
 def shoping_cart(request):
     
     return render(request, 'shoping-cart.html')

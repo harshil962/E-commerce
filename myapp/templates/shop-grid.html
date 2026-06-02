@@ -378,12 +378,52 @@
                         </div>
                         {% endfor %}
                     </div>
-                    <div class="product__pagination">
-                        <a href="#">1</a>
-                        <a href="#">2</a>
-                        <a href="#">3</a>
-                        <a href="#"><i class="fa fa-long-arrow-right"></i></a>
+                     <div class="col-12 pb-1">
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination justify-content-center mb-3">
+                                {% if products.has_previous %}
+                                <li class="page-item ">
+                                    <a class="page-link" href="?page=1" aria-label="Previous">
+                                            
+                                      <span>First</span>
+                                    </a>
+                                  </li>
+                                <li class="page-item ">
+                                  <a class="page-link" href="?={{products.previous_page_number}}" aria-label="Previous">
+                                 page
+                                    <span >Previous</span>
+                                  </a>
+                                </li>
+                                {% endif %}
+                                {% for i in show_page %}
+                                
+                                
+                                {% if i == products.number %}
+                                <li class="page-item active"><a class="page-link" href="?page={{i}}">{{i}}</a></li>
+                                {% else %}
+                                <li class="page-item"><a class="page-link" href="?page={{i}}">{{i}}</a></li>
+                                
+                                {% endif %}
+                                {% endfor %}
+                                {% if products.has_next %}
+                                <li class="page-item">
+                                  <a class="page-link" href="?page={{products.next_page_number}}" aria-label="Next">
+                                    
+                                    <span>Next</span>
+                                  </a>
+                                </li>
+    
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{products.paginator.num_pages}}" aria-label="Next">
+                                        
+                                      <span>Last</span>
+                                    </a>
+                                  </li>
+                                {% endif %}
+                              </ul>
+                        </nav>
                     </div>
+
                 </div>
             </div>
         </div>

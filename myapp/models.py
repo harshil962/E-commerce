@@ -20,6 +20,17 @@ class Size(models.Model):
     
     def __str__(self):
         return self.s_name
+    
+    
+class Human(models.Model):
+    username = models.CharField(max_length=200)
+    email = models.EmailField(max_length=200)
+    password = models.CharField(max_length=200)
+    
+    def __str__(self):
+        return self.username
+    
+    
 
 class Product(models.Model):
 

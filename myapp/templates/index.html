@@ -119,9 +119,41 @@
                                     <li><a href="#">English</a></li>
                                 </ul>
                             </div>
-                            <div class="header__top__right__auth">
-                                <a href='{% url "login" %}'><i class="fa fa-user"></i> Login</a>
-                            </div>
+                             <div class="header__top__right__auth">
+
+    {% if request.user.is_authenticated %}
+
+        <span>
+            Welcome, {{ request.user.username }}
+        </span>
+
+        <a href="{% url 'logout' %}">
+            <i class="fa fa-sign-out"></i> Logout
+        </a>
+
+    {% elif request.session.user_id %}
+
+        <span>
+            Welcome, {{ request.session.username }}
+        </span>
+
+        <a href="{% url 'logout' %}">
+            <i class="fa fa-sign-out"></i> Logout
+        </a>
+
+    {% else %}
+
+        <a href="{% url 'login' %}">
+            <i class="fa fa-user"></i> Login
+        </a>
+
+        <a href="{% url 'register' %}">
+            <i class="fa fa-user-plus"></i> Register
+        </a>
+
+    {% endif %}
+
+</div>
                         </div>
                     </div>
                 </div>
