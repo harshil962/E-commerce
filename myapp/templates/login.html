@@ -1,7 +1,7 @@
 {% extends "index.html" %}
+{% load static %}
 {% load socialaccount %}
 
-{% load static %}
 {% block content %}
 
 <div class="form-box">
@@ -9,7 +9,6 @@
     <h2>Login</h2>
 
     <form method="POST">
-
         {% csrf_token %}
 
         <input
@@ -19,30 +18,28 @@
             required
         >
 
-  <div style="position: relative;">
+        <div style="position: relative;">
+            <input
+                type="password"
+                name="password"
+                id="password"
+                placeholder="Enter Password"
+                required
+            >
 
-    <input
-        type="password"
-        name="password"
-        id="password"
-        placeholder="Enter Password"
-        required
-    >
-
-    <span
-        onclick="togglePassword('password', this)"
-        style="
-            position:absolute;
-            right:15px;
-            top:14px;
-            cursor:pointer;
-            user-select:none;
-        "
-    >
-        👁
-    </span>
-
-</div>
+            <span
+                onclick="togglePassword('password', this)"
+                style="
+                    position:absolute;
+                    right:15px;
+                    top:14px;
+                    cursor:pointer;
+                    user-select:none;
+                "
+            >
+                👁
+            </span>
+        </div>
 
         {% for message in messages %}
             <p style="
@@ -56,7 +53,6 @@
         {% endfor %}
 
         <button type="submit">Login</button>
-
     </form>
 
     <div style="text-align:center; margin-top:20px;">
@@ -75,12 +71,7 @@
                 color:#444;
                 text-decoration:none;
                 font-weight:600;
-                box-shadow:0 2px 5px rgba(0,0,0,0.1);
-                transition:0.3s;
-           "
-           onmouseover="this.style.background='#f5f5f5'"
-           onmouseout="this.style.background='#fff'"
-        >
+           ">
             <img
                 src="https://developers.google.com/identity/images/g-logo.png"
                 alt="Google"
@@ -90,29 +81,26 @@
             Sign in with Google
         </a>
     </div>
+
     <p>
         Don't have an account?
         <a href="{% url 'register' %}">Register</a>
     </p>
 
 </div>
+
 <script>
+function togglePassword(id, element) {
+    const input = document.getElementById(id);
 
-function togglePassword(id, element){
-
-    let input = document.getElementById(id);
-
-    if(input.type === "password"){
+    if (input.type === "password") {
         input.type = "text";
         element.innerHTML = "🙈";
-    }
-
-    else{
+    } else {
         input.type = "password";
         element.innerHTML = "👁";
     }
 }
-
 </script>
 
 {% endblock %}

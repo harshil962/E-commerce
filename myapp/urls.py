@@ -23,18 +23,38 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('blog/', views.blog, name='blog'),
     path('blog-details/', views.blog_details, name='blog_details'),
+    
     path('checkout/', views.checkout, name='checkout'),
+    
     path('contact/', views.contact, name='contact'),
     path('main/', views.main, name='main'),
-    path('shop-details/', views.shop_details, name='shop_details'),
     
+    path('shop-details/', views.shop_details, name='shop_details'),
     path('detail/<int:id>', views.detail, name='detail'),
     
     path('shop-grid/', views.shop_grid, name='shop_grid'),
-    path('shoping-cart/', views.shoping_cart, name='shoping_cart'),
+    
+    path('shoping-cart/', views.shoping_cart, name='shoping_cart'),           
+    path('add-to-cart/<int:id>/',views.add_to_cart,name='add_to_cart'),
+    path('remove-from-cart/<int:id>/',views.remove_from_cart,name='remove_from_cart'),
+    path('increase-quantity/<int:id>/',views.increase_quantity,name='increase_quantity'),
+    path('decrease-quantity/<int:id>/',views.decrease_quantity,name='decrease_quantity'),
+    
+    path('wishlist/', views.wishlist_page, name='wishlist_page'),
+    path("wishlist/toggle/", views.toggle_wishlist_ajax, name="toggle_wishlist_ajax"),
     
     path('color-filter/', views.color_filter_view, name='color_filter_view'),
     path('size-filter/', views.size_filter_view, name='size_filter_view'),
+    
+    
+    
+    path(
+    "search/",
+    views.search_product,
+    name="search_product"
+),
+    path("my_order/", views.my_order, name="my_order"),
+    path("order_detail/<int:id>", views.order_detail, name="order_detail"),
     
     
     path("register/", views.register_page, name="register"),

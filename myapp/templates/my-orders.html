@@ -1,0 +1,135 @@
+{% extends "index.html" %}
+{% load static %}
+
+{% block content %}
+
+
+
+<!-- Hero Section Begin -->
+<section class="hero hero-normal">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-3">
+        <div class="hero__categories">
+          <div class="hero__categories__all">
+            <i class="fa fa-bars"></i>
+            <span>All departments</span>
+          </div>
+          <ul>
+            {% for i in data %}
+            <li>
+              <a href="{% url 'shop_grid' %}?category={{ i.id }}">{{i.name}}</a>
+            </li>
+            {% empty %}
+            <li><a href="#"> No Departments Found </a></li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+      <div class="col-lg-9">
+        <div class="hero__search">
+          <div class="hero__search__form">
+            <form action="search_product" method="GET">
+              <div class="hero__search__categories">
+                All Categories
+                <span class="arrow_carrot-down"></span>
+              </div>
+              <input
+                type="text"
+                name="search"
+                placeholder="What do you need?"
+              />
+              <button type="submit" class="site-btn">SEARCH</button>
+            </form>
+          </div>
+          <div class="hero__search__phone">
+            <div class="hero__search__phone__icon">
+              <i class="fa fa-phone"></i>
+            </div>
+            <div class="hero__search__phone__text">
+              <h5>+65 11.188.888</h5>
+              <span>support 24/7 time</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- Hero Section End -->
+
+<!-- Breadcrumb Section Begin -->
+<section
+  class="breadcrumb-section set-bg"
+  data-setbg="{% static 'img/breadcrumb.jpg' %}"
+>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12 text-center">
+        <div class="breadcrumb__text">
+          <h2>My Orders</h2>
+          <div class="breadcrumb__option">
+            <a href="{% url 'index' %}">Home</a>
+            <span>My Orders</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- Breadcrumb Section End -->
+
+<section class="shoping-cart spad">
+  <div class="container">
+
+    <div class="row">
+      <div class="col-lg-12">
+
+        <div class="shoping__cart__table">
+          <table>
+
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Total Amount</th>
+                <th>Order Date</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+
+            <tbody>
+
+              {% for order in orders %}
+              <tr>
+                <td>#{{ order.id }}</td>
+                <td>₹{{ order.total_amount }}</td>
+                <td>{{ order.created_at|date:"d M Y H:i" }}</td>
+                <td>
+                  <a
+                    href="{% url 'order_detail' order.id %}"
+                    class="primary-btn"
+                  >
+                    View Details
+                  </a>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="4" class="text-center text-muted">
+    You have not placed any orders yet.
+</td>
+              </tr>
+              {% endfor %}
+
+            </tbody>
+
+          </table>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+{% endblock %}
