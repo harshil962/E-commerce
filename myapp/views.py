@@ -5,8 +5,11 @@ import re
 from django.contrib import messages
 from .models import *
 from functools import wraps
-# Create your views here.
+from django.core.mail import send_mail
 from django.core.paginator import Paginator
+from django.contrib.auth.hashers import make_password, check_password
+from django.contrib.sites.shortcuts import get_current_site
+from django.conf import settings
 
 
 
@@ -46,10 +49,10 @@ def register_page(request):
             return redirect("register")
 
         Human.objects.create(
-            username=username,
-            email=email,
-            password=password
-        )
+    username=username,
+    email=email,
+    password=make_password(password)
+)
 
         messages.success(request, "Registration successful")
         return redirect("login")
@@ -57,17 +60,18 @@ def register_page(request):
     return render(request, "register.html")
 
 
+
 def login_page(request):
     if request.session.get("user_id"):
         return redirect("index")
 
     if request.method == "POST":
-        user = Human.objects.filter(
-            username=request.POST.get("username"),
-            password=request.POST.get("password")
-        ).first()
+        username = request.POST.get("username")
+        password = request.POST.get("password")
 
-        if user:
+        user = Human.objects.filter(username=username).first()
+
+        if user and check_password(password, user.password):
             request.session["user_id"] = user.id
             request.session["username"] = user.username
             return redirect("index")
@@ -433,69 +437,24 @@ def remove_from_cart(request, id):
 def increase_quantity(request, id):
     user_id = request.session.get("user_id")
     user = get_object_or_404(Human, id=user_id)
-
-    cart_item = get_object_or_404(
-        Cart,
-        id=id,
-        user=user
-    )
-
+    cart_item = get_object_or_404(Cart, id=id, user=user)
     cart_item.quantity += 1
     cart_item.save()
-
-    return redirect("shoping_cart")
+    return redirect(request.META.get('HTTP_REFERER', 'shoping_cart'))
 
 @login_required_custom
 def decrease_quantity(request, id):
     user_id = request.session.get("user_id")
     user = get_object_or_404(Human, id=user_id)
-
-    cart_item = get_object_or_404(
-        Cart,
-        id=id,
-        user=user
-    )
-
+    cart_item = get_object_or_404(Cart, id=id, user=user)
     cart_item.quantity -= 1
-
     if cart_item.quantity <= 0:
         cart_item.delete()
     else:
         cart_item.save()
+    return redirect(request.META.get('HTTP_REFERER', 'shoping_cart'))
 
-    return redirect("shoping_cart")
 
-
-# REMOVE the old wishlist view (the one with redirect to shop_grid)
-# KEEP wishlist_page as-is
-# REPLACE toggle_wishlist_ajax with this:
-
-@login_required_custom
-def toggle_wishlist_ajax(request):
-    if request.method == "POST":
-        try:
-            product_id = request.POST.get("product_id")
-
-            if not product_id:
-                return JsonResponse({"status": "error", "message": "Product ID missing"}, status=400)
-
-            user_id = request.session.get("user_id")
-            user = get_object_or_404(Human, id=user_id)
-            product = get_object_or_404(Product, id=product_id)
-
-            wishlist_item = Wishlist.objects.filter(user=user, product=product).first()
-
-            if wishlist_item:
-                wishlist_item.delete()
-                return JsonResponse({"status": "success", "action": "removed", "in_wishlist": False})
-            else:
-                Wishlist.objects.create(user=user, product=product)
-                return JsonResponse({"status": "success", "action": "added", "in_wishlist": True})
-
-        except Exception as e:
-            return JsonResponse({"status": "error", "message": str(e)}, status=500)
-
-    return JsonResponse({"status": "error", "message": "Invalid request"}, status=400)
 
 @login_required_custom
 def toggle_wishlist_ajax(request):
@@ -604,3 +563,53 @@ def search_product(request):
     }
 
     return render(request, "shop-grid.html", context)
+
+
+def forgot_password(request):
+    if request.method == "POST":
+        email = request.POST.get("email")
+        try:
+            user = Human.objects.get(email=email)
+            # delete old tokens first
+            PasswordResetToken.objects.filter(user=user).delete()
+            token_obj = PasswordResetToken.objects.create(user=user)
+            domain = get_current_site(request).domain
+            reset_link = f"http://{domain}/reset-password/{token_obj.token}/"
+            send_mail(
+                "Reset Your Password",
+                f"Click this link to reset your password:\n\n{reset_link}\n\nThis link expires in 15 minutes.",
+                settings.DEFAULT_FROM_EMAIL,
+                [email],
+            )
+            return render(request, "forgot_password.html", {
+                "message": "Reset link sent! Check your email."
+            })
+        except Human.DoesNotExist:
+            return render(request, "forgot_password.html", {
+                "error": "No account found with that email."
+            })
+    return render(request, "forgot_password.html")
+
+
+def reset_password(request, token):
+    try:
+        token_obj = PasswordResetToken.objects.get(token=token)
+    except PasswordResetToken.DoesNotExist:
+        return render(request, "reset_password.html", {"error": "Invalid link."})
+
+    if token_obj.is_expired():
+        token_obj.delete()
+        return render(request, "reset_password.html", {"error": "Link expired."})
+    if request.method == "POST":
+        new_password = request.POST.get("password")
+        confirm_password = request.POST.get("confirm_password")
+        if new_password != confirm_password:
+            return render(request, "reset_password.html", {"error": "Passwords do not match.", "token": token})
+        human = Human.objects.get(id=token_obj.user.id)
+        human.password = make_password(new_password)
+        human.save()
+        token_obj.delete()
+        messages.success(request, "Password reset successful. Please login.")
+        return redirect("login")
+
+    return render(request, "reset_password.html", {"token": token})

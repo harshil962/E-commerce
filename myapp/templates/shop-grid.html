@@ -618,19 +618,22 @@
     })
     .then(res => res.json())
     .then(data => {
-      if (data.status === 'success') {
-        if (data.in_wishlist) {
-          icon.style.color = 'red';
-        } else {
-          icon.style.color = 'black';
-          // If on wishlist page, remove the card entirely
-          const card = wishlistBtn.closest('.col-lg-3, .col-md-4, .col-sm-6');
-          if (card) card.remove();
-        }
-      } else {
-        alert('Error: ' + data.message);
+  if (data.status === 'success') {
+    if (data.in_wishlist) {
+      icon.style.color = 'red';
+    } else {
+      icon.style.color = 'black';
+      // Only remove card if on wishlist page
+      const isWishlistPage = document.body.dataset.page === 'wishlist';
+      if (isWishlistPage) {
+        const card = wishlistBtn.closest('.col-lg-4, .col-lg-3, .col-md-6, .col-sm-6');
+        if (card) card.remove();
       }
-    })
+    }
+  } else {
+    alert('Error: ' + data.message);
+  }
+})
     .catch(err => console.error('Fetch error:', err));
   });
 </script>

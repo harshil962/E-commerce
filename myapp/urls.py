@@ -60,5 +60,9 @@ urlpatterns = [
     path("register/", views.register_page, name="register"),
     path("login/", views.login_page, name="login"),
     path("logout/", views.logout_page, name="logout"),
+    
+    
+    path("forgot-password/", views.forgot_password, name="forgot_password"),
+    path("reset-password/<uuid:token>/", views.reset_password, name="reset_password"),
 
 ]

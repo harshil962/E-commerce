@@ -144,11 +144,13 @@
             ADD TO CART
           </a>
           {% endif %}
-                  <a href="{% url 'wishlist' pid.id %}">
-    <i class="fa fa-heart"
-       style="color:{% if pid.id in wishlist_products %}red{% else %}#7fad39{% endif %};">
-    </i>
-</a>
+                  <a href="#"
+                      class="wishlist-btn"
+                      data-product-id="{{ pid.id }}">
+                      <i class="fa fa-heart wishlist-icon"
+                        style="color: {% if pid.id in wishlist_products %}red{% else %}black{% endif %};">
+                      </i>
+                    </a>
           <ul>
             <li><b>Availability</b> <span>In Stock</span></li>
             <li>
@@ -403,5 +405,64 @@
   </div>
 </section>
 <!-- Related Product Section End -->
+<script>
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
 
+  const csrftoken = getCookie('csrftoken');
+  const toggleWishlistUrl = "{% url 'toggle_wishlist_ajax' %}";
+
+  document.addEventListener('click', function (e) {
+    const wishlistBtn = e.target.closest('.wishlist-btn');
+    if (!wishlistBtn) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    const productId = wishlistBtn.dataset.productId;
+    const icon = wishlistBtn.querySelector('.wishlist-icon');
+    if (!icon) return;
+
+    fetch(toggleWishlistUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'X-CSRFToken': csrftoken
+      },
+      body: `product_id=${productId}`
+    })
+    .then(res => res.json())
+    .then(data => {
+  if (data.status === 'success') {
+    if (data.in_wishlist) {
+      icon.style.color = 'red';
+    } else {
+      icon.style.color = 'black';
+
+      // Only remove card if on wishlist page
+      const isWishlistPage = document.body.dataset.page === 'wishlist';
+      if (isWishlistPage) {
+        const card = wishlistBtn.closest('.col-lg-3, .col-md-4, .col-sm-6');
+        if (card) card.remove();
+      }
+    }
+  } else {
+    alert('Error: ' + data.message);
+  }
+})
+    .catch(err => console.error('Fetch error:', err));
+  });
+</script>
 {% endblock %}

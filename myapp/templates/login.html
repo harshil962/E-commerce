@@ -1,106 +1,103 @@
-{% extends "index.html" %}
-{% load static %}
-{% load socialaccount %}
-
-{% block content %}
+{% extends "index.html" %} {% load static %} {% load socialaccount %} {% block
+content %}
 
 <div class="form-box">
+  <h2>Login</h2>
 
-    <h2>Login</h2>
+  <form method="POST">
+    {% csrf_token %}
 
-    <form method="POST">
-        {% csrf_token %}
+    <input type="text" name="username" placeholder="Enter Username" required />
 
-        <input
-            type="text"
-            name="username"
-            placeholder="Enter Username"
-            required
-        >
+    <div style="position: relative">
+      <input
+        type="password"
+        name="password"
+        id="password"
+        placeholder="Enter Password"
+        required
+      />
 
-        <div style="position: relative;">
-            <input
-                type="password"
-                name="password"
-                id="password"
-                placeholder="Enter Password"
-                required
-            >
-
-            <span
-                onclick="togglePassword('password', this)"
-                style="
-                    position:absolute;
-                    right:15px;
-                    top:14px;
-                    cursor:pointer;
-                    user-select:none;
-                "
-            >
-                👁
-            </span>
-        </div>
-
-        {% for message in messages %}
-            <p style="
-                color:{% if message.tags == 'success' %}green{% else %}red{% endif %};
-                text-align:center;
-                margin-top:10px;
-                font-size:14px;
-            ">
-                {{ message }}
-            </p>
-        {% endfor %}
-
-        <button type="submit">Login</button>
-    </form>
-
-    <div style="text-align:center; margin-top:20px;">
-        <a href="{% provider_login_url 'google' %}"
-           style="
-                display:inline-flex;
-                align-items:center;
-                justify-content:center;
-                gap:10px;
-                width:100%;
-                max-width:300px;
-                padding:12px;
-                border:1px solid #ddd;
-                border-radius:5px;
-                background:#fff;
-                color:#444;
-                text-decoration:none;
-                font-weight:600;
-           ">
-            <img
-                src="https://developers.google.com/identity/images/g-logo.png"
-                alt="Google"
-                width="20"
-                height="20"
-            >
-            Sign in with Google
-        </a>
+      <span
+        onclick="togglePassword('password', this)"
+        style="
+          position: absolute;
+          right: 15px;
+          top: 14px;
+          cursor: pointer;
+          user-select: none;
+        "
+      >
+        👁
+      </span>
     </div>
 
-    <p>
-        Don't have an account?
-        <a href="{% url 'register' %}">Register</a>
+    {% for message in messages %}
+    <p
+      style="
+                    color:{% if message.tags == 'success' %}green{% else %}red{% endif %};
+                    text-align:center;
+                    margin-top:10px;
+                    font-size:14px;
+                "
+    >
+      {{ message }}
     </p>
+    {% endfor %}
 
+    <button type="submit">Login</button>
+  </form>
+
+  <div style="text-align: center; margin-top: 20px">
+    <a
+      href="{% provider_login_url 'google' %}"
+      style="
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        width: 100%;
+        max-width: 300px;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background: #fff;
+        color: #444;
+        text-decoration: none;
+        font-weight: 600;
+      "
+    >
+      <img
+        src="https://developers.google.com/identity/images/g-logo.png"
+        alt="Google"
+        width="20"
+        height="20"
+      />
+      Sign in with Google
+    </a>
+    <p style="text-align: center; margin-top: 10px">
+      <a href="{% url 'forgot_password' %}"> Forgot Password? </a>
+    </p>
+  </div>
+
+  <p>
+    Don't have an account?
+    <a href="{% url 'register' %}">Register</a>
+  </p>
 </div>
 
 <script>
-function togglePassword(id, element) {
+  function togglePassword(id, element) {
     const input = document.getElementById(id);
 
     if (input.type === "password") {
-        input.type = "text";
-        element.innerHTML = "🙈";
+      input.type = "text";
+      element.innerHTML = "🙈";
     } else {
-        input.type = "password";
-        element.innerHTML = "👁";
+      input.type = "password";
+      element.innerHTML = "👁";
     }
-}
+  }
 </script>
 
 {% endblock %}

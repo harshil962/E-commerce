@@ -1,7 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
-
-
+import uuid
+from datetime import timedelta
+from django.utils import timezone
 # Create your models here.
 
 class Departments(models.Model):
@@ -25,9 +26,9 @@ class Size(models.Model):
     
     
 class Human(models.Model):
-    username = models.CharField(max_length=200)
-    email = models.EmailField(max_length=200)
-    password = models.CharField(max_length=200)
+    username = models.CharField(max_length=200, unique=True) 
+    email = models.EmailField(max_length=200, unique=True) 
+    password = models.CharField(max_length=5000)
     
     def __str__(self):
         return self.username
@@ -99,5 +100,11 @@ class OrderItem(models.Model):
     def __str__(self):
         return f"{self.order.id} - {self.product.name}"
     
-    
+class PasswordResetToken(models.Model):
+    user = models.ForeignKey(Human, on_delete=models.CASCADE)
+    token = models.UUIDField(default=uuid.uuid4, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def is_expired(self):
+       return self.created_at < timezone.now() - timedelta(minutes=15)
     
