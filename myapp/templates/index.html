@@ -87,7 +87,7 @@
       </div>
       <div class="humberger__menu__widget">
         <div class="header__top__right__language">
-<img src="{% static 'img/language.png' %}" alt="" />
+          <img src="{% static 'img/language.png' %}" alt="" />
           <div>English</div>
           <span class="arrow_carrot-down"></span>
           <ul>
@@ -171,14 +171,6 @@
                     <i class="fa fa-sign-out"></i> Logout
                   </a>
 
-                  {% elif request.session.user_id %}
-
-                  <span> Welcome, {{ request.session.username }} </span>
-
-                  <a href="{% url 'logout' %}">
-                    <i class="fa fa-sign-out"></i> Logout
-                  </a>
-
                   {% else %}
 
                   <a href="{% url 'login' %}">
@@ -202,7 +194,7 @@
             <div class="header__logo">
               <a href="{% url 'index' %}"
                 ><img src="{% static 'img/logo.png' %}" alt="" />
-</a>
+              </a>
             </div>
           </div>
           <div class="col-lg-6">
@@ -218,7 +210,6 @@
                     <li><a href="{% url 'checkout' %}">Check Out</a></li>
                     <li><a href="{% url 'blog' %}">Blog Details</a></li>
                     <li><a href="{% url 'my_order' %}">My Orders</a></li>
-
                   </ul>
                 </li>
                 <li><a href="{% url 'blog' %}">Blog</a></li>
@@ -306,8 +297,10 @@
                 </div>
               </div>
             </div>
-           <div class="hero__item set-bg" data-setbg="{% static 'img/hero/banner.jpg' %}">
-
+            <div
+              class="hero__item set-bg"
+              data-setbg="{% static 'img/hero/banner.jpg' %}"
+            >
               <div class="hero__text">
                 <span>FRUIT FRESH</span>
                 <h2>Vegetable <br />100% Organic</h2>
@@ -377,9 +370,15 @@
               >
                 <ul class="featured__item__pic__hover">
                   <li>
-                    <a href="#" class="wishlist-btn" data-product-id="{{ i.id }}">
-                      <i class="fa fa-heart wishlist-icon"
-                        style="{% if i.id in wishlist_products %}color:red;{% endif %}">
+                    <a
+                      href="#"
+                      class="wishlist-btn"
+                      data-product-id="{{ i.id }}"
+                    >
+                      <i
+                        class="fa fa-heart wishlist-icon"
+                        style="{% if i.id in wishlist_products %}color:red;{% endif %}"
+                      >
                       </i>
                     </a>
                   </li>
@@ -415,7 +414,6 @@
           <div class="col-lg-6 col-md-6 col-sm-6">
             <div class="banner__pic">
               <img src="{% static 'img/banner/banner-1.jpg' %}" alt="" />
-
             </div>
           </div>
           <div class="col-lg-6 col-md-6 col-sm-6">
@@ -664,7 +662,7 @@
                 </p>
               </div>
               <div class="footer__copyright__payment">
-<img src="{% static 'img/payment-item.png' %}" alt="" />
+                <img src="{% static 'img/payment-item.png' %}" alt="" />
               </div>
             </div>
           </div>
@@ -674,55 +672,57 @@
     <!-- Footer Section End -->
 
     <!-- Js Plugins -->
-<script>
-  function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-      const cookies = document.cookie.split(';');
-      for (let i = 0; i < cookies.length; i++) {
-        const cookie = cookies[i].trim();
-        if (cookie.substring(0, name.length + 1) === (name + '=')) {
-          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-          break;
+    <script>
+      function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== "") {
+          const cookies = document.cookie.split(";");
+          for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === name + "=") {
+              cookieValue = decodeURIComponent(
+                cookie.substring(name.length + 1),
+              );
+              break;
+            }
+          }
         }
+        return cookieValue;
       }
-    }
-    return cookieValue;
-  }
 
-  const csrftoken = getCookie('csrftoken');
-  const toggleWishlistUrl = "{% url 'toggle_wishlist_ajax' %}";
+      const csrftoken = getCookie("csrftoken");
+      const toggleWishlistUrl = "{% url 'toggle_wishlist_ajax' %}";
 
-  document.addEventListener('click', function (e) {
-    const wishlistBtn = e.target.closest('.wishlist-btn');
-    if (!wishlistBtn) return;
+      document.addEventListener("click", function (e) {
+        const wishlistBtn = e.target.closest(".wishlist-btn");
+        if (!wishlistBtn) return;
 
-    e.preventDefault();
-    e.stopPropagation();
+        e.preventDefault();
+        e.stopPropagation();
 
-    const productId = wishlistBtn.dataset.productId;
-    const icon = wishlistBtn.querySelector('.wishlist-icon');
-    if (!icon) return;
+        const productId = wishlistBtn.dataset.productId;
+        const icon = wishlistBtn.querySelector(".wishlist-icon");
+        if (!icon) return;
 
-    fetch(toggleWishlistUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'X-CSRFToken': csrftoken
-      },
-      body: `product_id=${productId}`
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.status === 'success') {
-        icon.style.color = data.in_wishlist ? 'red' : '';
-      } else {
-        alert('Error: ' + data.message);
-      }
-    })
-    .catch(err => console.error('Fetch error:', err));
-  });
-</script>
+        fetch(toggleWishlistUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "X-CSRFToken": csrftoken,
+          },
+          body: `product_id=${productId}`,
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.status === "success") {
+              icon.style.color = data.in_wishlist ? "red" : "";
+            } else {
+              alert("Error: " + data.message);
+            }
+          })
+          .catch((err) => console.error("Fetch error:", err));
+      });
+    </script>
     <script src="{% static 'js/jquery-3.3.1.min.js' %}"></script>
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
     <script src="{% static 'js/jquery.nice-select.min.js' %}"></script>

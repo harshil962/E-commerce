@@ -24,7 +24,7 @@
       <div class="col-lg-9">
         <div class="hero__search">
           <div class="hero__search__form">
-            <form action="search_product" method="GET">
+            <form action="{% url 'search_product' %}" method="GET">
               <div class="hero__search__categories">
                 All Categories
                 <span class="arrow_carrot-down"></span>
@@ -33,6 +33,7 @@
                 type="text"
                 name="search"
                 placeholder="What do you need?"
+                value="{{ query }}"
               />
               <button type="submit" class="site-btn">SEARCH</button>
             </form>
@@ -480,12 +481,16 @@
                 data-setbg="{{ i.image.url }}"
               >
                 <ul class="product__item__pic__hover">
-                 <li>
-                    <a href="#"
+                  <li>
+                    <a
+                      href="#"
                       class="wishlist-btn"
-                      data-product-id="{{ i.id }}">
-                      <i class="fa fa-heart wishlist-icon"
-                        style="color: {% if i.id in wishlist_products %}red{% else %}black{% endif %};">
+                      data-product-id="{{ i.id }}"
+                    >
+                      <i
+                        class="fa fa-heart wishlist-icon"
+                        style="color: {% if i.id in wishlist_products %}red{% else %}black{% endif %};"
+                      >
                       </i>
                     </a>
                   </li>
@@ -514,7 +519,6 @@
         <div class="col-12 pb-1">
           <nav aria-label="Page navigation">
             <ul class="pagination justify-content-center mb-3">
-
               {% if products.has_previous %}
               <li class="page-item">
                 <a class="page-link" href="?page=1" aria-label="Previous">
@@ -533,10 +537,7 @@
                 </a>
               </li>
 
-              {% endif %} 
-
-              {% for i in show_page %} 
-              {% if i == products.number %}
+              {% endif %} {% for i in show_page %} {% if i == products.number %}
               <li class="page-item active">
                 <a class="page-link" href="?page={{i}}">{{i}}</a>
               </li>
@@ -544,10 +545,7 @@
               <li class="page-item">
                 <a class="page-link" href="?page={{i}}">{{i}}</a>
               </li>
-              {% endif %} 
-              {% endfor %} 
-              
-              {% if products.has_next %}
+              {% endif %} {% endfor %} {% if products.has_next %}
               <li class="page-item">
                 <a
                   class="page-link"
@@ -581,11 +579,11 @@
 <script>
   function getCookie(name) {
     let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-      const cookies = document.cookie.split(';');
+    if (document.cookie && document.cookie !== "") {
+      const cookies = document.cookie.split(";");
       for (let i = 0; i < cookies.length; i++) {
         const cookie = cookies[i].trim();
-        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        if (cookie.substring(0, name.length + 1) === name + "=") {
           cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
           break;
         }
@@ -594,48 +592,49 @@
     return cookieValue;
   }
 
-  const csrftoken = getCookie('csrftoken');
+  const csrftoken = getCookie("csrftoken");
   const toggleWishlistUrl = "{% url 'toggle_wishlist_ajax' %}";
 
-  document.addEventListener('click', function (e) {
-    const wishlistBtn = e.target.closest('.wishlist-btn');
+  document.addEventListener("click", function (e) {
+    const wishlistBtn = e.target.closest(".wishlist-btn");
     if (!wishlistBtn) return;
 
     e.preventDefault();
     e.stopPropagation();
 
     const productId = wishlistBtn.dataset.productId;
-    const icon = wishlistBtn.querySelector('.wishlist-icon');
+    const icon = wishlistBtn.querySelector(".wishlist-icon");
     if (!icon) return;
 
     fetch(toggleWishlistUrl, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'X-CSRFToken': csrftoken
+        "Content-Type": "application/x-www-form-urlencoded",
+        "X-CSRFToken": csrftoken,
       },
-      body: `product_id=${productId}`
+      body: `product_id=${productId}`,
     })
-    .then(res => res.json())
-    .then(data => {
-  if (data.status === 'success') {
-    if (data.in_wishlist) {
-      icon.style.color = 'red';
-    } else {
-      icon.style.color = 'black';
-      // Only remove card if on wishlist page
-      const isWishlistPage = document.body.dataset.page === 'wishlist';
-      if (isWishlistPage) {
-        const card = wishlistBtn.closest('.col-lg-4, .col-lg-3, .col-md-6, .col-sm-6');
-        if (card) card.remove();
-      }
-    }
-  } else {
-    alert('Error: ' + data.message);
-  }
-})
-    .catch(err => console.error('Fetch error:', err));
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.status === "success") {
+          if (data.in_wishlist) {
+            icon.style.color = "red";
+          } else {
+            icon.style.color = "black";
+            // Only remove card if on wishlist page
+            const isWishlistPage = document.body.dataset.page === "wishlist";
+            if (isWishlistPage) {
+              const card = wishlistBtn.closest(
+                ".col-lg-4, .col-lg-3, .col-md-6, .col-sm-6",
+              );
+              if (card) card.remove();
+            }
+          }
+        } else {
+          alert("Error: " + data.message);
+        }
+      })
+      .catch((err) => console.error("Fetch error:", err));
   });
 </script>
 {% endblock %}
-
