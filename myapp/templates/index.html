@@ -164,23 +164,20 @@
                 </div>
                 <div class="header__top__right__auth">
                   {% if request.user.is_authenticated %}
-
-                  <span> Welcome, {{ request.user.username }} </span>
-
-                  <a href="{% url 'logout' %}">
-                    <i class="fa fa-sign-out"></i> Logout
-                  </a>
-
+                  <span>Welcome, {{ request.user.username }}</span>
+                  <a href="{% url 'my_profile' %}"
+                    ><i class="fa fa-user"></i> My Profile</a
+                  >
+                  <a href="{% url 'logout' %}"
+                    ><i class="fa fa-sign-out"></i> Logout</a
+                  >
                   {% else %}
-
-                  <a href="{% url 'login' %}">
-                    <i class="fa fa-user"></i> Login
-                  </a>
-
-                  <a href="{% url 'register' %}">
-                    <i class="fa fa-user-plus"></i> Register
-                  </a>
-
+                  <a href="{% url 'login' %}"
+                    ><i class="fa fa-user"></i> Login</a
+                  >
+                  <a href="{% url 'register' %}"
+                    ><i class="fa fa-user-plus"></i> Register</a
+                  >
                   {% endif %}
                 </div>
               </div>
@@ -321,7 +318,6 @@
           <div class="categories__slider owl-carousel">
             {% for product in products %}
             <div class="col-lg-3">
-              x
               <div
                 class="categories__item set-bg"
                 data-setbg="{{ product.image.url }}"
@@ -582,7 +578,6 @@
             </div>
           </div>
         </div>
-        +
       </div>
     </section>
     <!-- Blog Section End -->

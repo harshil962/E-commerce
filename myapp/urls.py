@@ -60,8 +60,8 @@ urlpatterns = [
     path("register/", views.register_page, name="register"),
     path("login/", views.login_page, name="login"),
     path("logout/", views.logout_page, name="logout"),
-    
-    
+    path('profile/', views.my_profile, name='my_profile'),
+    path('change-password/', views.change_password, name='change_password'),
     path("forgot-password/", views.forgot_password, name="forgot_password"),
     path("reset-password/<uuid:token>/", views.reset_password, name="reset_password"),
 

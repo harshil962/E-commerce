@@ -190,3 +190,6 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'hp5896958@gmail.com'      
 EMAIL_HOST_PASSWORD = 'dgphgjqtzyidivmd'   
 DEFAULT_FROM_EMAIL = 'hp5896958@gmail.com'
+
+
+CONTACT_RECEIVER_EMAIL = 'hp5896958@gmail.com'  

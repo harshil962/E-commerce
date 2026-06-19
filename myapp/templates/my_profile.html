@@ -1,0 +1,197 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block content %}
+
+    <!-- Hero Section Begin -->
+    <section class="hero hero-normal">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3">
+                    <div class="hero__categories">
+                        <div class="hero__categories__all">
+                            <i class="fa fa-bars"></i>
+                            <span>All departments</span>
+                        </div>
+                       <ul>
+                            {% for i in data %}
+                                <li>
+                                    <a href="{% url 'shop_grid' %}?category={{ i.id }}">
+                                        {{ i.name }}
+                                    </a>
+                                </li>
+                            {% empty %}
+                                <li><a href="#">No departments found</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-9">
+                    <div class="hero__search">
+                        <div class="hero__search__form">
+                            <form action="#">
+                                <div class="hero__search__categories">
+                                    All Categories
+                                    <span class="arrow_carrot-down"></span>
+                                </div>
+                                <input type="text" placeholder="What do yo u need?">
+                                <button type="submit" class="site-btn">SEARCH</button>
+                            </form>
+                        </div>
+                        <div class="hero__search__phone">
+                            <div class="hero__search__phone__icon">
+                                <i class="fa fa-phone"></i>
+                            </div>
+                            <div class="hero__search__phone__text">
+                                <h5>+65 11.188.888</h5>
+                                <span>support 24/7 time</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Hero Section End -->
+
+
+    <!-- Breadcrumb Section Begin -->
+<section
+  class="breadcrumb-section set-bg"
+  data-setbg="{% static 'img/breadcrumb.jpg' %}"
+>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12 text-center">
+        <div class="breadcrumb__text">
+          <h2>My-Profile </h2>
+         
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- Breadcrumb Section End -->
+<section class="profile spad">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 offset-lg-2">
+
+
+
+        {% if messages %}
+          {% for message in messages %}
+            <div class="profile__alert profile__alert--{{ message.tags }}" role="alert">
+              {{ message }}
+            </div>
+          {% endfor %}
+        {% endif %}
+
+        <div class="profile__card">
+
+          <form method="POST" enctype="multipart/form-data" class="profile__form" autocomplete="off">
+            {% csrf_token %}
+
+            <div class="profile__card__header">
+              <div class="profile__photo__wrap">
+                {% if profile.photo %}
+                  <img src="{{ profile.photo.url }}" alt="Profile Photo" class="profile__photo" id="profilePhotoPreview">
+                {% else %}
+                  <div class="profile__avatar" id="profileAvatarPreview">
+                    {{ request.user.username|slice:":1"|upper }}
+                  </div>
+                {% endif %}
+
+                <label for="{{ photo_form.photo.id_for_label }}" class="profile__photo__camera" title="Change photo">
+                  <i class="fa fa-camera"></i>
+                </label>
+                <div class="profile__photo__input">
+                  {{ photo_form.photo }}
+                </div>
+              </div>
+
+              {% if photo_form.photo.errors %}
+                <span class="profile__form__error">{{ photo_form.photo.errors.0 }}</span>
+              {% endif %}
+
+              <h5>{{ request.user.username }}</h5>
+              <span>{{ request.user.email }}</span>
+            </div>
+
+            <!-- Stats Row -->
+            <div class="profile__stats">
+              <div class="profile__stats__item">
+                <h4>{{ cart_count }}</h4>
+                <span>Cart Items</span>
+              </div>
+              <div class="profile__stats__item">
+                <h4>{{ wishlist_count }}</h4>
+                <span>Wishlist Items</span>
+              </div>
+              <div class="profile__stats__item">
+                <h4>{{ order_count }}</h4>
+                <span>Orders Placed</span>
+              </div>
+            </div>
+
+            <div class="profile__form__group">
+              <label for="{{ form.first_name.id_for_label }}">First Name</label>
+              {{ form.first_name }}
+              {% if form.first_name.errors %}
+                <span class="profile__form__error">{{ form.first_name.errors.0 }}</span>
+              {% endif %}
+            </div>
+
+            <div class="profile__form__group">
+              <label for="{{ form.last_name.id_for_label }}">Last Name</label>
+              {{ form.last_name }}
+              {% if form.last_name.errors %}
+                <span class="profile__form__error">{{ form.last_name.errors.0 }}</span>
+              {% endif %}
+            </div>
+
+            <div class="profile__form__group">
+              <label for="{{ form.email.id_for_label }}">Email</label>
+              {{ form.email }}
+              {% if form.email.errors %}
+                <span class="profile__form__error">{{ form.email.errors.0 }}</span>
+              {% endif %}
+            </div>
+
+            <div class="profile__form__actions">
+              <button type="submit" class="site-btn">Save Changes</button>
+              <a href="{% url 'change_password' %}" class="site-btn profile__btn--secondary">Change Password</a>
+            </div>
+          </form>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+document.querySelector('input[name="photo"]')?.addEventListener('change', function (e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    const existingImg = document.getElementById('profilePhotoPreview');
+    const avatarDiv = document.getElementById('profileAvatarPreview');
+
+    if (existingImg) {
+      existingImg.src = ev.target.result;
+    } else if (avatarDiv) {
+      const newImg = document.createElement('img');
+      newImg.src = ev.target.result;
+      newImg.alt = 'Profile Photo';
+      newImg.className = 'profile__photo';
+      newImg.id = 'profilePhotoPreview';
+      avatarDiv.replaceWith(newImg);
+    }
+  };
+  reader.readAsDataURL(file);
+});
+</script>
+{% endblock %}

@@ -11,6 +11,9 @@ from django.core.paginator import Paginator
 from django.contrib.sites.shortcuts import get_current_site
 from django.conf import settings
 from django.contrib.auth.decorators import login_required as login_required_custom
+from .forms import ProfileUpdateForm, ProfilePhotoForm
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
 
 
 def register_page(request):
@@ -162,8 +165,41 @@ def checkout(request):
     }
     return render(request, 'checkout.html',context)
 
-
 def contact(request):
+    if request.method == "POST":
+        name = request.POST.get("name", "").strip()
+        email = request.POST.get("email", "").strip()
+        subject = request.POST.get("subject", "").strip()
+        message_body = request.POST.get("message", "").strip()
+
+        if not name or not email or not message_body:
+            messages.error(request, "Please fill in all required fields.")
+            return redirect("contact")
+
+        full_message = f"""
+You received a new contact form submission:
+
+Name: {name}
+Email: {email}
+Subject: {subject if subject else '(No subject)'}
+
+Message:
+{message_body}
+""" 
+
+        try:
+            send_mail(
+                subject=f"New Contact Form Submission: {subject if subject else 'No Subject'}",
+                message=full_message,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[settings.CONTACT_RECEIVER_EMAIL],
+                fail_silently=False,
+            )
+            messages.success(request, "Your message has been sent successfully!")
+        except Exception as e:
+            messages.error(request, "Something went wrong. Please try again later.")
+
+        return redirect("contact")
 
     return render(request, 'contact.html')
 
@@ -589,3 +625,55 @@ def reset_password(request, token):
         return redirect("login")
 
     return render(request, "reset_password.html", {"token": token})
+
+
+
+@login_required_custom
+def my_profile(request):
+    profile, _ = Profile.objects.get_or_create(user=request.user)
+
+    if request.method == 'POST':
+        form = ProfileUpdateForm(request.POST, instance=request.user)
+        photo_form = ProfilePhotoForm(request.POST, request.FILES, instance=profile)
+
+        if form.is_valid() and photo_form.is_valid():
+            form.save()
+            photo_form.save()
+            messages.success(request, 'Profile updated successfully.')
+            return redirect('my_profile')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = ProfileUpdateForm(instance=request.user)
+        photo_form = ProfilePhotoForm(instance=profile)
+
+    cart_count = Cart.objects.filter(user=request.user).count()
+    wishlist_count = Wishlist.objects.filter(user=request.user).count()
+    order_count = Order.objects.filter(user=request.user).count()
+
+    context = {
+        'form': form,
+        'photo_form': photo_form,
+        'profile': profile,
+        'cart_count': cart_count,
+        'wishlist_count': wishlist_count,
+        'order_count': order_count,
+    }
+    return render(request, 'my_profile.html', context)
+
+
+@login_required_custom
+def change_password(request):
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)  # keeps user logged in after password change
+            messages.success(request, 'Password changed successfully.')
+            return redirect('my_profile')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = PasswordChangeForm(request.user)
+
+    return render(request, 'change_password.html', {'form': form})
