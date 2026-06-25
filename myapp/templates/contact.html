@@ -78,14 +78,14 @@
                     <div class="contact__widget">
                         <span class="icon_phone"></span>
                         <h4>Phone</h4>
-                        <p>+01-3-8888-6868</p>
+                        <p>+91-8200625079</p>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-3 col-sm-6 text-center">
                     <div class="contact__widget">
                         <span class="icon_pin_alt"></span>
                         <h4>Address</h4>
-                        <p>60-49 Road 11378 New York</p>
+                        <p>Raipur</p>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-3 col-sm-6 text-center">
@@ -99,7 +99,7 @@
                     <div class="contact__widget">
                         <span class="icon_mail_alt"></span>
                         <h4>Email</h4>
-                        <p>hello@colorlib.com</p>
+                        <p>hp5896958@gmail.com</p>
                     </div>
                 </div>
             </div>
@@ -109,63 +109,76 @@
 
     <!-- Map Begin -->
     <div class="map">
-        <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d49116.39176087041!2d-86.41867791216099!3d39.69977417971648!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x886ca48c841038a1%3A0x70cfba96bf847f0!2sPlainfield%2C%20IN%2C%20USA!5e0!3m2!1sen!2sbd!4v1586106673811!5m2!1sen!2sbd"
-            height="500" style="border:0;" allowfullscreen="" aria-hidden="false" tabindex="0"></iframe>
+        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3671.9401514024794!2d72.58941260949852!3d23.02596957908449!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x395e843622795555%3A0x3243eedd715ce785!2sshamla%2C%20ni%20pole%2C%201211%2C%20VACHALO%20KHANCHO%2C%20Old%20City%2C%20Raipur%2C%20Khadia%2C%20Ahmedabad%2C%20Gujarat%20380001!5e0!3m2!1sen!2sin!4v1782288382893!5m2!1sen!2sin" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
         <div class="map-inside">
             <i class="icon_pin"></i>
             <div class="inside-widget">
-                <h4>New York</h4>
+                <h4>Raipur </h4>
                 <ul>
-                    <li>Phone: +12-345-6789</li>
+                    <li>Phone: +91 8200625079</li>
                     <li>Add: 16 Creek Ave. Farmingdale, NY</li>
                 </ul>
             </div>
         </div>
     </div>
     <!-- Map End -->
-
-  <!-- Contact Form Begin -->
-<div class="contact-form spad">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="contact__form__title">
-                    <h2>Leave Message</h2>
-                </div>
-            </div>
-        </div>
-
-        {% if messages %}
-          <div class="row">
-            <div class="col-lg-12 text-center" style="margin-bottom: 20px;">
-              {% for message in messages %}
-                <div class="profile__alert profile__alert--{{ message.tags }}" role="alert">
-                  {{ message }}
-                </div>
-              {% endfor %}
-            </div>
-          </div>
-        {% endif %}
-
-        <form method="POST" action="{% url 'contact' %}">
-            {% csrf_token %}
+    
+    <!-- Contact Form Begin -->
+    <div class="contact-form spad">
+        <div class="container">
             <div class="row">
-                <div class="col-lg-6 col-md-6">
-                    <input type="text" name="name" placeholder="Your name" required>
-                </div>
-                <div class="col-lg-6 col-md-6">
-                    <input type="email" name="email" placeholder="Your Email" required>
-                </div>
                 <div class="col-lg-12">
-                    <input type="text" name="subject" placeholder="Subject (optional)">
-                </div>
-                <div class="col-lg-12 text-center">
-                    <textarea name="message" placeholder="Your message" required></textarea>
-                    <button type="submit" class="site-btn">SEND MESSAGE</button>
+                    <div class="contact__form__title">
+                        <h2>Leave Message</h2>
+                    </div>
                 </div>
             </div>
-        </form>
+            
+            {% comment %} {% if messages %}
+            <div class="row">
+                <div class="col-lg-12 text-center" style="margin-bottom: 20px;">
+                    {% for message in messages %}
+                    <div class="profile__alert profile__alert--{{ message.tags }}" role="alert">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %} {% endcomment %}
+            
+            <form method="POST" action="{% url 'contact' %}">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-lg-6 col-md-6">
+                        <input type="text" name="name" placeholder="Your name" required>
+                    </div>
+                    <div class="col-lg-6 col-md-6">
+                        <input type="email" name="email" placeholder="Your Email" required>
+                    </div>
+                    <div class="col-lg-12">
+                        <input type="text" name="subject" placeholder="Subject (optional)">
+                    </div>
+                    <div class="col-lg-12 text-center">
+                        <textarea name="message" placeholder="Your message" required></textarea>
+                        <button type="submit" class="site-btn">SEND MESSAGE</button>
+                    </div>
+                </div>
+            </form>
+            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+            {% if messages %}
+                {% for message in messages %}
+                <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    Swal.fire({
+                        icon: '{{ message.tags }}',
+                        title: '{{ message|escapejs }}',
+                        showConfirmButton: false,
+                        timer: 2500
+                    });
+                });
+                </script>
+                {% endfor %}
+            {% endif %}
     </div>
 </div>
 <!-- Contact Form End -->

@@ -193,3 +193,8 @@ DEFAULT_FROM_EMAIL = 'hp5896958@gmail.com'
 
 
 CONTACT_RECEIVER_EMAIL = 'hp5896958@gmail.com'  
+
+
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'index'
+LOGOUT_REDIRECT_URL = 'login'

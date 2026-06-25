@@ -162,24 +162,14 @@
                     <li><a href="#">English</a></li>
                   </ul>
                 </div>
-                <div class="header__top__right__auth">
-                  {% if request.user.is_authenticated %}
-                  <span>Welcome, {{ request.user.username }}</span>
-                  <a href="{% url 'my_profile' %}"
-                    ><i class="fa fa-user"></i> My Profile</a
-                  >
-                  <a href="{% url 'logout' %}"
-                    ><i class="fa fa-sign-out"></i> Logout</a
-                  >
-                  {% else %}
-                  <a href="{% url 'login' %}"
-                    ><i class="fa fa-user"></i> Login</a
-                  >
-                  <a href="{% url 'register' %}"
-                    ><i class="fa fa-user-plus"></i> Register</a
-                  >
-                  {% endif %}
-                </div>
+                 <div class="header__top__right__auth">
+    {% if request.user.is_authenticated %}
+      <a href="{% url 'my_profile' %}"><i class="fa fa-user"></i> {{ request.user.username }}</a>
+      <a href="{% url 'logout' %}"><i class="fa fa-sign-out"></i> Logout</a>
+    {% else %}
+      <a href="{% url 'login' %}"><i class="fa fa-user"></i> Login</a>
+    {% endif %}
+  </div>
               </div>
             </div>
           </div>
@@ -582,6 +572,32 @@
     </section>
     <!-- Blog Section End -->
     {% endblock %}
+    {% if messages %}
+{% for message in messages %}
+{% if "Order placed" in message.message %}
+<div class="custom-popup-overlay" id="orderPopup">
+  <div class="custom-popup-box">
+    <div class="custom-popup-icon">
+      <svg width="60" height="60" viewBox="0 0 60 60">
+        <circle cx="30" cy="30" r="28" fill="none" stroke="#F37254" stroke-width="3"/>
+        <path d="M17 31 L26 40 L43 21" fill="none" stroke="#F37254" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <h3>Order Placed Successfully!</h3>
+    <p>Thank you for shopping with us. Your order is being processed.</p>
+    <button onclick="closeOrderPopup()">Continue Shopping</button>
+  </div>
+</div>
+
+
+<script>
+  function closeOrderPopup() {
+    document.getElementById("orderPopup").style.display = "none";
+  }
+</script>
+{% endif %}
+{% endfor %}
+{% endif %}
     <!-- Footer Section Begin -->
     <footer class="footer spad">
       <div class="container">
@@ -718,6 +734,8 @@
           .catch((err) => console.error("Fetch error:", err));
       });
     </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{% static 'js/jquery-3.3.1.min.js' %}"></script>
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
     <script src="{% static 'js/jquery.nice-select.min.js' %}"></script>

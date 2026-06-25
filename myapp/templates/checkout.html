@@ -1,231 +1,414 @@
 {% extends "index.html" %} {% load static %} {% block content %}
-<!-- Hero Section Begin -->
-<section class="hero hero-normal">
-  <div class="container">
-    <div class="row">
-      <div class="col-lg-3">
-        <div class="hero__categories">
-          <div class="hero__categories__all">
-            <i class="fa fa-bars"></i>
-            <span>All departments</span>
-          </div>
-          <ul>
-            {% for i in data %}
-            <li><a href="#">{{ i.name }}</a></li>
-            {% empty %}
-            <li><a href="#">No departments found</a></li>
-            {% endfor %}
-          </ul>
-        </div>
-      </div>
-      <div class="col-lg-9">
-        <div class="hero__search">
-          <div class="hero__search__form">
-            <form action="#">
-              <div class="hero__search__categories">
-                All Categories
-                <span class="arrow_carrot-down"></span>
-              </div>
-              <input type="text" placeholder="What do yo u need?" />
-              <button type="submit" class="site-btn">SEARCH</button>
-            </form>
-          </div>
-          <div class="hero__search__phone">
-            <div class="hero__search__phone__icon">
-              <i class="fa fa-phone"></i>
-            </div>
-            <div class="hero__search__phone__text">
-              <h5>+65 11.188.888</h5>
-              <span>support 24/7 time</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-<!-- Hero Section End -->
 
-<!-- Breadcrumb Section Begin -->
-<section
-  class="breadcrumb-section set-bg"
-  data-setbg="{% static 'img/breadcrumb.jpg' %}"
->
-  <div class="container">
-    <div class="row">
-      <div class="col-lg-12 text-center">
-        <div class="breadcrumb__text">
-          <h2>Checkout</h2>
-          <div class="breadcrumb__option">
-            <a href='{% url "index" %}'>Home</a>
-            <span>Checkout</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-<!-- Breadcrumb Section End -->
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --ink-soft: #6b6b6b;
+    --paper: #faf8f5;
+    --line: #e7e2da;
+    --accent: #f37254;
+    --accent-deep: #d85a3c;
+    --ok: #2f8a5b;
+  }
 
-<!-- Checkout Section Begin -->
-<section class="checkout spad">
-  <div class="container">
-    <div class="row">
-      <div class="col-lg-12">
-        <h6>
-          <span class="icon_tag_alt"></span> Have a coupon?
-          <a href="#">Click here</a> to enter your code
-        </h6>
+  .ck-wrap {
+    background: var(--paper);
+    padding: 48px 0 80px;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    color: var(--ink);
+  }
+
+  .ck-container {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* Header / step strip */
+  .ck-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 20px;
+    margin-bottom: 36px;
+  }
+
+  .ck-head h1 {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin: 0;
+  }
+
+  .ck-steps {
+    display: flex;
+    gap: 10px;
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+
+  .ck-steps span.active { color: var(--accent); font-weight: 600; }
+
+  /* Grid */
+  .ck-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 48px;
+    align-items: start;
+  }
+
+  @media (max-width: 900px) {
+    .ck-grid { grid-template-columns: 1fr; }
+  }
+
+  /* Coupon strip */
+  .ck-coupon {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 14px 18px;
+    font-size: 14px;
+    color: var(--ink-soft);
+    margin-bottom: 28px;
+  }
+
+  .ck-coupon a {
+    color: var(--accent);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  /* Form */
+  .ck-section-label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin: 0 0 16px;
+  }
+
+  .ck-field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .ck-field {
+    margin-bottom: 16px;
+  }
+
+  .ck-field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .ck-field label span { color: var(--accent); }
+
+  .ck-field input[type="text"],
+  .ck-field input[type="email"] {
+    width: 100%;
+    border: 1px solid var(--line);
+    background: #fff;
+    border-radius: 5px;
+    padding: 11px 13px;
+    font-size: 14px;
+    color: var(--ink);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    box-sizing: border-box;
+  }
+
+  .ck-field input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(243, 114, 84, 0.12);
+  }
+
+  .ck-checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin: 6px 0 18px;
+    cursor: pointer;
+  }
+
+  .ck-checkbox-row input { accent-color: var(--accent); width: 16px; height: 16px; }
+
+  .ck-hint {
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    margin: -6px 0 16px;
+    line-height: 1.5;
+  }
+
+  .ck-divider {
+    border: none;
+    border-top: 1px solid var(--line);
+    margin: 28px 0;
+  }
+
+  /* Order summary card */
+  .ck-summary {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 28px;
+    position: sticky;
+    top: 24px;
+  }
+
+  .ck-summary h2 {
+    font-size: 17px;
+    font-weight: 700;
+    margin: 0 0 18px;
+  }
+
+  .ck-line-items {
+    list-style: none;
+    margin: 0 0 18px;
+    padding: 0;
+    max-height: 240px;
+    overflow-y: auto;
+  }
+
+  .ck-line-items li {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 13.5px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .ck-line-items li:first-child { padding-top: 0; }
+
+  .ck-line-items .ck-item-name { color: var(--ink); }
+  .ck-line-items .ck-item-price { color: var(--ink-soft); white-space: nowrap; }
+
+  .ck-totals-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    color: var(--ink-soft);
+    padding: 6px 0;
+  }
+
+  .ck-totals-row.total {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--ink);
+    border-top: 1px solid var(--line);
+    margin-top: 10px;
+    padding-top: 14px;
+  }
+
+  .ck-totals-row.total span:last-child { color: var(--accent-deep); }
+
+  .ck-payment-opts {
+    margin: 20px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .ck-payment-opt {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    padding: 11px 13px;
+    font-size: 13.5px;
+    cursor: pointer;
+    transition: border-color 0.15s ease;
+  }
+
+  .ck-payment-opt:hover { border-color: var(--accent); }
+  .ck-payment-opt input { accent-color: var(--accent); }
+
+  .ck-place-btn {
+    width: 100%;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 15px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+
+  .ck-place-btn:hover { background: var(--accent-deep); }
+
+  .ck-secure-note {
+    text-align: center;
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin-top: 12px;
+  }
+
+  .ck-secure-note .dot { color: var(--ok); }
+</style>
+
+<div class="ck-wrap">
+  <div class="ck-container">
+
+    <div class="ck-head">
+      <h1>Checkout</h1>
+      <div class="ck-steps">
+        <span>Cart</span> &rarr; <span class="active">Details &amp; Payment</span>
       </div>
     </div>
-    <div class="checkout__form">
-      <h4>Billing Details</h4>
-      <form action="#" method="POST">
-        {% csrf_token %}
-        <div class="row">
-          <div class="col-lg-8 col-md-6">
-            <div class="row">
-              <div class="col-lg-6">
-                <div class="checkout__input">
-                  <p>Fist Name<span>*</span></p>
-                  <input type="text" name="first_name" required />
-                </div>
-              </div>
-              <div class="col-lg-6">
-                <div class="checkout__input">
-                  <p>Last Name<span>*</span></p>
-                  <input type="text" name="last_name" required />
-                </div>
-              </div>
+
+    <div class="ck-coupon">
+      Have a coupon? <a href="#">Click here</a> to enter your code.
+    </div>
+
+    <script src="https://checkout.razorpay.com/v1/checkout.js"
+        data-key="rzp_test_T2dnsJj46vyR6V"
+        data-amount="{{ total_paise }}"
+        data-currency="INR"
+        data-buttontext="Pay with Razorpay"
+        data-name="{{ user }}"
+        data-theme.color="#F37254"
+        data-description="Order Payment"
+        data-prefill.name="{{ request.user.username }}"
+        data-prefill.email="{{ request.user.email }}">
+    </script>
+
+    <form action="#" method="POST">
+      {% csrf_token %}
+
+      <div class="ck-grid">
+
+        <!-- Left: billing details -->
+        <div>
+          <p class="ck-section-label">Billing Details</p>
+
+          <div class="ck-field-row">
+            <div class="ck-field">
+              <label>First name <span>*</span></label>
+              <input type="text" name="first_name" required />
             </div>
-            <div class="checkout__input">
-              <p>Country<span>*</span></p>
-              <input type="text" />
+            <div class="ck-field">
+              <label>Last name <span>*</span></label>
+              <input type="text" name="last_name" required />
             </div>
-            <div class="checkout__input">
-              <p>Address<span>*</span></p>
-              <input
-                type="text"
-                name="address"
-                placeholder="Street Address"
-                class="checkout__input__add"
-                required
-              />
-              <input
-                type="text"
-                placeholder="Apartment, suite, unite ect (optinal)"
-              />
-            </div>
-            <div class="checkout__input">
-              <p>Town/City<span>*</span></p>
+          </div>
+
+          <div class="ck-field">
+            <label>Country <span>*</span></label>
+            <input type="text" />
+          </div>
+
+          <div class="ck-field">
+            <label>Address <span>*</span></label>
+            <input type="text" name="address" placeholder="Street address" required />
+          </div>
+
+          <div class="ck-field">
+            <label>Apartment / suite (optional)</label>
+            <input type="text" placeholder="Apartment, suite, unit, etc." />
+          </div>
+
+          <div class="ck-field-row">
+            <div class="ck-field">
+              <label>Town / city <span>*</span></label>
               <input type="text" name="city" required />
             </div>
-            <div class="checkout__input">
-              <p>Country/State<span>*</span></p>
+            <div class="ck-field">
+              <label>State <span>*</span></label>
               <input type="text" />
-            </div>
-            <div class="checkout__input">
-              <p>Postcode / ZIP<span>*</span></p>
-              <input type="text" />
-            </div>
-            <div class="row">
-              <div class="col-lg-6">
-                <div class="checkout__input">
-                  <p>Phone<span>*</span></p>
-                  <input type="text" name="phone" required />
-                </div>
-              </div>
-              <div class="col-lg-6">
-                <div class="checkout__input">
-                  <p>Email<span>*</span></p>
-                  <input type="email" name="email" required />
-                </div>
-              </div>
-            </div>
-            <div class="checkout__input__checkbox">
-              <label for="acc">
-                Create an account?
-                <input type="checkbox" id="acc" />
-                <span class="checkmark"></span>
-              </label>
-            </div>
-            <p>
-              Create an account by entering the information below. If you are a
-              returning customer please login at the top of the page
-            </p>
-            <div class="checkout__input">
-              <p>Account Password<span>*</span></p>
-              <input type="text" />
-            </div>
-            <div class="checkout__input__checkbox">
-              <label for="diff-acc">
-                Ship to a different address?
-                <input type="checkbox" id="diff-acc" />
-                <span class="checkmark"></span>
-              </label>
-            </div>
-            <div class="checkout__input">
-              <p>Order notes<span>*</span></p>
-              <input
-                type="text"
-                placeholder="Notes about your order, e.g. special notes for delivery."
-              />
             </div>
           </div>
-          <div class="col-lg-4 col-md-6">
-            <div class="checkout__order">
-              <h4>Your Order</h4>
-              <div class="checkout__order__products">
-                Products <span>Total</span>
-              </div>
-              <ul>
-                {% for item in cart_items %}
-                <li>
-                  {{ item.product.name }} × {{ item.quantity }}
-                  <span>₹{{ item.subtotal }}</span>
-                </li>
-                {% endfor %}
-              </ul>
 
-              <div class="checkout__order__subtotal">
-                Subtotal <span>₹{{ total }}</span>
-              </div>
-
-              <div class="checkout__order__total">
-                Total <span>₹{{ total }}</span>
-              </div>
-              <div class="checkout__input__checkbox">
-                <label for="acc-or">
-                  Create an account?
-                  <input type="checkbox" id="acc-or" />
-                  <span class="checkmark"></span>
-                </label>
-              </div>
-              <p>
-                Lorem ipsum dolor sit amet, consectetur adip elit, sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua.
-              </p>
-              <div class="checkout__input__checkbox">
-                <label for="payment">
-                  Check Payment
-                  <input type="checkbox" id="payment" />
-                  <span class="checkmark"></span>
-                </label>
-              </div>
-              <div class="checkout__input__checkbox">
-                <label for="paypal">
-                  Paypal
-                  <input type="checkbox" id="paypal" />
-                  <span class="checkmark"></span>
-                </label>
-              </div>
-              <button type="submit" class="site-btn">PLACE ORDER</button>
+          <div class="ck-field-row">
+            <div class="ck-field">
+              <label>Postcode / ZIP</label>
+              <input type="text" />
             </div>
+            <div class="ck-field">
+              <label>Phone <span>*</span></label>
+              <input type="text" name="phone" required />
+            </div>
+          </div>
+
+          <div class="ck-field">
+            <label>Email <span>*</span></label>
+            <input type="email" name="email" required />
+          </div>
+
+          <label class="ck-checkbox-row">
+            <input type="checkbox" id="acc" />
+            Create an account for faster checkout next time
+          </label>
+
+          <div class="ck-field">
+            <label>Account password</label>
+            <input type="text" />
+          </div>
+
+          <label class="ck-checkbox-row">
+            <input type="checkbox" id="diff-acc" />
+            Ship to a different address
+          </label>
+
+          <div class="ck-field">
+            <label>Order notes</label>
+            <input type="text" placeholder="Notes about your order — e.g. delivery instructions" />
           </div>
         </div>
-      </form>
-    </div>
+
+        <!-- Right: order summary -->
+        <div class="ck-summary">
+          <h2>Your Order</h2>
+
+          <ul class="ck-line-items">
+            {% for item in cart_items %}
+            <li>
+              <span class="ck-item-name">{{ item.product.name }} &times; {{ item.quantity }}</span>
+              <span class="ck-item-price">&#8377;{{ item.subtotal }}</span>
+            </li>
+            {% endfor %}
+          </ul>
+
+          <div class="ck-totals-row">
+            <span>Subtotal</span>
+            <span>&#8377;{{ total }}</span>
+          </div>
+          <div class="ck-totals-row total">
+            <span>Total</span>
+            <span>&#8377;{{ total }}</span>
+          </div>
+
+          <div class="ck-payment-opts">
+            <label class="ck-payment-opt">
+              <input type="checkbox" id="payment" />
+              Pay on delivery
+            </label>
+            <label class="ck-payment-opt">
+              <input type="checkbox" id="paypal" />
+              PayPal
+            </label>
+          </div>
+
+          <button type="submit" class="ck-place-btn">Place Order</button>
+
+          <p class="ck-secure-note"><span class="dot">&#9679;</span> Secured checkout via Razorpay</p>
+        </div>
+
+      </div>
+    </form>
+
   </div>
-</section>
-<!-- Checkout Section End -->
+</div>
+
 {% endblock %}

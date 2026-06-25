@@ -3,26 +3,25 @@
 
 <div class="form-box">
 
-    <h2>Forgot Password</h2>
+    <h2>Verify OTP</h2>
+
+    <p style="text-align:center; font-size:14px; color:#666;">
+        Enter the 6-digit code sent to your email.
+    </p>
 
     <form method="POST">
         {% csrf_token %}
 
         <input 
-            type="email" 
-            name="email" 
-            placeholder="Enter your registered email"
+            type="text" 
+            name="otp" 
+            maxlength="6" 
+            placeholder="Enter 6-digit OTP"
             required
         >
 
-        <button type="submit">Send OTP</button>
+        <button type="submit">Verify OTP</button>
     </form>
-
-    {% if message %}
-        <p style="color:green; text-align:center; margin-top:10px;">
-            {{ message }}
-        </p>
-    {% endif %}
 
     {% if error %}
         <p style="color:red; text-align:center; margin-top:10px;">
@@ -31,6 +30,11 @@
     {% endif %}
 
     <p style="text-align:center; margin-top:15px;">
+        Didn't get the code? 
+        <a href="{% url 'forgot_password' %}">Resend OTP</a>
+    </p>
+
+    <p style="text-align:center; margin-top:10px;">
         Back to 
         <a href="{% url 'login' %}">Login</a>
     </p>

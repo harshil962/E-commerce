@@ -96,11 +96,29 @@ class OrderItem(models.Model):
     def __str__(self):
         return f"{self.order.id} - {self.product.name}"
     
-class PasswordResetToken(models.Model):
+# class PasswordResetToken(models.Model):
+#     user = models.ForeignKey(User, on_delete=models.CASCADE)
+#     token = models.UUIDField(default=uuid.uuid4, unique=True)
+#     created_at = models.DateTimeField(auto_now_add=True)
+
+#     def is_expired(self):
+#        return self.created_at < timezone.now() - timedelta(minutes=15)
+
+
+class PasswordResetOTP(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    token = models.UUIDField(default=uuid.uuid4, unique=True)
+    otp = models.CharField(max_length=6)
     created_at = models.DateTimeField(auto_now_add=True)
+    is_verified = models.BooleanField(default=False)
 
     def is_expired(self):
-       return self.created_at < timezone.now() - timedelta(minutes=15)
+        return timezone.now() > self.created_at + timedelta(minutes=10)
+
+    @staticmethod
+    def generate_otp():
+        import random
+        return str(random.randint(100000, 999999))
+
+    def __str__(self):
+        return f"{self.user.username} - {self.otp}"
     

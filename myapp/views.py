@@ -114,11 +114,12 @@ def index(request):
 
         return render(request, "index.html", context)
 
+@login_required_custom
 
 def blog(request):
     return render(request, 'blog.html')
 
-
+@login_required_custom
 def blog_details(request):
     return render(request, 'blog-details.html')
 
@@ -126,15 +127,17 @@ def blog_details(request):
 def checkout(request):
     data = Departments.objects.all()
     user = request.user
-
     cart_items = Cart.objects.filter(user=user)
-
+    if not cart_items.exists():
+        messages.error(request, "Your cart is empty.Please select items")
+        return redirect("shoping_cart")
     total = 0
     for item in cart_items:
         item.subtotal = item.product.price * item.quantity
         total += item.subtotal
 
     if request.method == "POST":
+        
         order = Order.objects.create(
             user=user,
             first_name=request.POST.get("first_name"),
@@ -161,7 +164,8 @@ def checkout(request):
     context = {
         "data":data,
         "cart_items":cart_items,
-        "total":total
+        "total":total,
+        "total_paise" : int(total*100)
     }
     return render(request, 'checkout.html',context)
 
@@ -202,15 +206,13 @@ Message:
         return redirect("contact")
 
     return render(request, 'contact.html')
-
-
 def main(request):
     return render(request, 'main.html')
 
 
+@login_required_custom
 def shop_details(request):
     product = Product.objects.first()
-
     return render(request, "shop-details.html", {
         "pid": product
     })
@@ -218,7 +220,6 @@ def shop_details(request):
 @login_required_custom
 def detail(request,id):
     data = Departments.objects.all()
-
     pid = get_object_or_404(Product, id=id)
     user = request.user
 
@@ -530,6 +531,8 @@ def order_detail(request, id):
 
     return render(request, "order_detail.html", context)
 
+
+@login_required_custom
 def search_product(request):
     data = Departments.objects.all()
     cf = Color_filter.objects.all()
@@ -573,25 +576,25 @@ def search_product(request):
 
     return render(request, "shop-grid.html", context)
 
+
+
 def forgot_password(request):
     if request.method == "POST":
         email = request.POST.get("email")
         try:
             user = User.objects.get(email=email)
-            # delete old tokens first
-            PasswordResetToken.objects.filter(user=user).delete()
-            token_obj = PasswordResetToken.objects.create(user=user)
-            domain = get_current_site(request).domain
-            reset_link = f"http://{domain}/reset-password/{token_obj.token}/"
+            PasswordResetOTP.objects.filter(user=user).delete()
+            otp_code = PasswordResetOTP.generate_otp()
+            PasswordResetOTP.objects.create(user=user, otp=otp_code)
+
             send_mail(
-                "Reset Your Password",
-                f"Click this link to reset your password:\n\n{reset_link}\n\nThis link expires in 15 minutes.",
+                "Your Password Reset OTP",
+                f"Your OTP code is: {otp_code}\n\nThis code expires in 10 minutes.",
                 settings.DEFAULT_FROM_EMAIL,
                 [email],
             )
-            return render(request, "forgot_password.html", {
-                "message": "Reset link sent! Check your email."
-            })
+            request.session["reset_email"] = email
+            return redirect("verify_otp")
         except User.DoesNotExist:
             return render(request, "forgot_password.html", {
                 "error": "No account found with that email."
@@ -599,34 +602,64 @@ def forgot_password(request):
     return render(request, "forgot_password.html")
 
 
-def reset_password(request, token):
-    try:
-        token_obj = PasswordResetToken.objects.get(token=token)
-    except PasswordResetToken.DoesNotExist:
-        return render(request, "reset_password.html", {"error": "Invalid link."})
+def verify_otp(request):
+    email = request.session.get("reset_email")
+    if not email:
+        return redirect("forgot_password")
 
-    if token_obj.is_expired():
-        token_obj.delete()
-        return render(request, "reset_password.html", {"error": "Link expired."})
+    if request.method == "POST":
+        entered_otp = request.POST.get("otp")
+        try:
+            user = User.objects.get(email=email)
+            otp_obj = PasswordResetOTP.objects.filter(
+                user=user, otp=entered_otp
+            ).latest("created_at")
+
+            if otp_obj.is_expired():
+                otp_obj.delete()
+                return render(request, "verify_otp.html", {
+                    "error": "OTP expired. Please request a new one."
+                })
+
+            otp_obj.is_verified = True
+            otp_obj.save()
+            request.session["otp_verified"] = True
+            return redirect("reset_password")
+
+        except (User.DoesNotExist, PasswordResetOTP.DoesNotExist):
+            return render(request, "verify_otp.html", {"error": "Invalid OTP."})
+
+    return render(request, "verify_otp.html")
+
+
+def reset_password(request):
+    email = request.session.get("reset_email")
+    verified = request.session.get("otp_verified")
+
+    if not email or not verified:
+        return redirect("forgot_password")
 
     if request.method == "POST":
         new_password = request.POST.get("password")
         confirm_password = request.POST.get("confirm_password")
 
         if new_password != confirm_password:
-            return render(request, "reset_password.html", {"error": "Passwords do not match.", "token": token})
+            return render(request, "reset_password.html", {
+                "error": "Passwords do not match."
+            })
 
-        human = token_obj.user
-        human.set_password(new_password)
-        human.save()
-        token_obj.delete()
+        user = User.objects.get(email=email)
+        user.set_password(new_password)
+        user.save()
+
+        PasswordResetOTP.objects.filter(user=user).delete()
+        del request.session["reset_email"]
+        del request.session["otp_verified"]
 
         messages.success(request, "Password reset successful. Please login.")
         return redirect("login")
 
-    return render(request, "reset_password.html", {"token": token})
-
-
+    return render(request, "reset_password.html")
 
 @login_required_custom
 def my_profile(request):
